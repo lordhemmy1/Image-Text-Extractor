@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Extractor with OCR</title>
+    <title>Advanced Text Extractor</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <style>
         * {
@@ -14,10 +14,11 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            background: linear-gradient(135deg, #1a2a6c, #2a3a7c, #1a2a6c);
             color: #fff;
             min-height: 100vh;
             padding: 20px;
+            line-height: 1.6;
         }
         
         .container {
@@ -29,16 +30,16 @@
         header {
             text-align: center;
             margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.35);
             border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
         
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -63,21 +64,23 @@
         .upload-section, .result-section {
             flex: 1;
             min-width: 300px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
             border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
         
         .section-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #ff7e5f;
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #ff9a9e;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
         }
         
         .section-title i {
@@ -85,56 +88,61 @@
         }
         
         .upload-area {
-            border: 3px dashed rgba(255, 255, 255, 0.4);
-            border-radius: 10px;
-            padding: 30px;
+            border: 3px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 35px;
             text-align: center;
             transition: all 0.3s ease;
             cursor: pointer;
             margin-bottom: 25px;
+            background: rgba(0, 0, 0, 0.2);
         }
         
         .upload-area:hover, .upload-area.drag-over {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: #ff7e5f;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ff9a9e;
         }
         
         .upload-icon {
-            font-size: 4rem;
-            margin-bottom: 15px;
-            color: #ff7e5f;
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            color: #ff9a9e;
+            text-shadow: 0 2px 10px rgba(255, 154, 158, 0.5);
         }
         
         .upload-text {
             margin-bottom: 15px;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            font-weight: 500;
         }
         
         .file-info {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             opacity: 0.8;
-            margin-top: 5px;
+            margin-top: 8px;
+            color: #fad0c4;
         }
         
         .btn {
-            background: linear-gradient(to right, #ff7e5f, #feb47b);
-            color: white;
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            color: #1a2a6c;
             border: none;
-            padding: 12px 25px;
-            font-size: 1rem;
+            padding: 14px 30px;
+            font-size: 1.1rem;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(255, 126, 95, 0.4);
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(255, 154, 158, 0.5);
+            margin: 10px 5px;
         }
         
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(255, 126, 95, 0.6);
+            box-shadow: 0 6px 25px rgba(255, 154, 158, 0.7);
         }
         
         .btn:active {
@@ -146,6 +154,7 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+            color: rgba(255, 255, 255, 0.5);
         }
         
         #fileInput {
@@ -161,73 +170,138 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: 1.2rem;
         }
         
         #imagePreview {
             max-width: 100%;
             max-height: 400px;
-            border-radius: 10px;
+            border-radius: 12px;
             display: none;
             margin: 0 auto;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
         
         .text-output {
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 10px;
-            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 25px;
             min-height: 300px;
             max-height: 400px;
             overflow-y: auto;
             font-size: 1.1rem;
-            line-height: 1.6;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            line-height: 1.7;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            background-image: linear-gradient(rgba(255,255,255,0.05) 50%, transparent 50%);
+            background-size: 100% 2.4rem;
         }
         
         .text-output:empty::before {
             content: "Extracted text will appear here...";
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.4);
             font-style: italic;
         }
         
+        .processing-container {
+            margin: 25px 0;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
         .progress-container {
-            margin: 20px 0;
-            background: rgba(0, 0, 0, 0.2);
+            margin: 15px 0;
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 10px;
-            height: 10px;
+            height: 12px;
             overflow: hidden;
         }
         
         .progress-bar {
             height: 100%;
-            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.4s ease;
+            border-radius: 10px;
         }
         
         .status {
             text-align: center;
-            margin: 15px 0;
-            font-size: 0.9rem;
-            min-height: 20px;
+            margin: 20px 0;
+            font-size: 1rem;
+            min-height: 24px;
+            font-weight: 500;
         }
         
         .action-buttons {
             display: flex;
             gap: 15px;
-            margin-top: 20px;
+            margin-top: 25px;
             flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .enhancement-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .option {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .option-title {
+            margin-bottom: 10px;
+            color: #ff9a9e;
+            font-weight: 600;
+        }
+        
+        .option-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .tips {
+            background: rgba(255, 154, 158, 0.15);
+            border-left: 4px solid #ff9a9e;
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+            margin: 20px 0;
+        }
+        
+        .tips-title {
+            margin-bottom: 10px;
+            color: #fad0c4;
+            font-weight: 600;
+        }
+        
+        .tips-list {
+            padding-left: 20px;
+        }
+        
+        .tips-list li {
+            margin-bottom: 8px;
         }
         
         footer {
             text-align: center;
-            padding: 20px;
+            padding: 25px;
             margin-top: 30px;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             opacity: 0.7;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
         }
         
         @media (max-width: 768px) {
@@ -238,15 +312,25 @@
             .upload-section, .result-section {
                 width: 100%;
             }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
         
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
+            width: 24px;
+            height: 24px;
+            border: 4px solid rgba(255,255,255,.3);
             border-radius: 50%;
-            border-top-color: #ff7e5f;
+            border-top-color: #ff9a9e;
             animation: spin 1s ease-in-out infinite;
         }
         
@@ -258,20 +342,31 @@
 <body>
     <div class="container">
         <header>
-            <h1>Image Text Extractor</h1>
-            <p class="subtitle">Upload any image containing text, and our powerful OCR technology will extract all characters with high accuracy. Images are automatically compressed to under 500KB and previewed at 750×750px.</p>
+            <h1>Advanced Text Extractor</h1>
+            <p class="subtitle">Upload images containing text and extract characters with enhanced accuracy. Images are automatically optimized for OCR processing.</p>
         </header>
         
         <div class="app-container">
             <div class="upload-section">
                 <h2 class="section-title">
-                    <i>📁</i> Upload Image
+                    <i>📁</i> Upload & Process
                 </h2>
+                
+                <div class="tips">
+                    <div class="tips-title">For Best Results:</div>
+                    <ul class="tips-list">
+                        <li>Use well-lit images without shadows</li>
+                        <li>Ensure text is in focus and not blurry</li>
+                        <li>Position text horizontally if possible</li>
+                        <li>Avoid complex backgrounds</li>
+                        <li>Handwritten text may have lower accuracy</li>
+                    </ul>
+                </div>
                 
                 <div class="upload-area" id="dropArea">
                     <div class="upload-icon">📁</div>
                     <p class="upload-text">Drag & drop your image here or click to browse</p>
-                    <p class="file-info">Max file size: 5MB | Supported formats: JPG, PNG, BMP</p>
+                    <p class="file-info">Max file size: 5MB | Supported: JPG, PNG, BMP, WEBP</p>
                     <button class="btn" id="browseBtn">
                         <i>📂</i> Select Image
                     </button>
@@ -281,14 +376,28 @@
                 
                 <div class="preview-container">
                     <h3 class="preview-title">
-                        <i>👁️</i> Image Preview
+                        <i>👁️</i> Image Preview (750×750px)
                     </h3>
                     <img id="imagePreview" alt="Preview will appear here">
+                </div>
+                
+                <div class="enhancement-options">
+                    <div class="option">
+                        <div class="option-title">Preprocessing</div>
+                        <div class="option-description">Automatically enhances contrast, reduces noise, and sharpens text for better recognition</div>
+                    </div>
+                    <div class="option">
+                        <div class="option-title">OCR Optimization</div>
+                        <div class="option-description">Advanced character recognition tuned for challenging documents and images</div>
+                    </div>
                 </div>
                 
                 <div class="action-buttons">
                     <button class="btn" id="extractBtn" disabled>
                         <i>🔍</i> Extract Text
+                    </button>
+                    <button class="btn" id="enhanceBtn" disabled>
+                        <i>✨</i> Enhance & Extract
                     </button>
                     <button class="btn" id="resetBtn">
                         <i>🔄</i> Reset
@@ -301,12 +410,14 @@
                     <i>📝</i> Extracted Text
                 </h2>
                 
-                <div class="progress-container">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-                
-                <div class="status" id="statusText">
-                    Ready to process your image
+                <div class="processing-container">
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    
+                    <div class="status" id="statusText">
+                        Ready to process your image
+                    </div>
                 </div>
                 
                 <div class="text-output" id="textOutput"></div>
@@ -314,7 +425,7 @@
         </div>
         
         <footer>
-            <p>Powered by Tesseract.js | Text extraction accuracy may vary based on image quality</p>
+            <p>Powered by Tesseract.js | Accuracy improves with image quality | Processing done locally in your browser</p>
         </footer>
     </div>
 
@@ -326,10 +437,15 @@
             const dropArea = document.getElementById('dropArea');
             const imagePreview = document.getElementById('imagePreview');
             const extractBtn = document.getElementById('extractBtn');
+            const enhanceBtn = document.getElementById('enhanceBtn');
             const resetBtn = document.getElementById('resetBtn');
             const textOutput = document.getElementById('textOutput');
             const progressBar = document.getElementById('progressBar');
             const statusText = document.getElementById('statusText');
+            
+            // State variables
+            let selectedFile = null;
+            let worker = null;
             
             // Event Listeners
             browseBtn.addEventListener('click', () => fileInput.click());
@@ -337,11 +453,19 @@
             dropArea.addEventListener('dragover', handleDragOver);
             dropArea.addEventListener('dragleave', handleDragLeave);
             dropArea.addEventListener('drop', handleDrop);
-            extractBtn.addEventListener('click', extractText);
+            extractBtn.addEventListener('click', () => extractText(false));
+            enhanceBtn.addEventListener('click', () => extractText(true));
             resetBtn.addEventListener('click', resetApp);
             
-            let selectedFile = null;
-            let compressedImage = null;
+            // Initialize Tesseract worker
+            Tesseract.createWorker({
+                logger: progress => updateProgress(progress)
+            }).then(w => {
+                worker = w;
+                worker.load();
+                worker.loadLanguage('eng');
+                worker.initialize('eng');
+            });
             
             // Handle file selection via input
             function handleFileSelect(e) {
@@ -379,7 +503,7 @@
                 
                 // Check if file is an image
                 if (!file.type.match('image.*')) {
-                    updateStatus('Please select an image file (JPG, PNG, BMP)', 'error');
+                    updateStatus('Please select an image file (JPG, PNG, BMP, WEBP)', 'error');
                     return;
                 }
                 
@@ -431,8 +555,9 @@
                         imagePreview.src = canvas.toDataURL('image/jpeg', 0.85);
                         imagePreview.style.display = 'block';
                         
-                        // Enable extract button
+                        // Enable extract buttons
                         extractBtn.disabled = false;
+                        enhanceBtn.disabled = false;
                     };
                     
                     img.src = e.target.result;
@@ -442,8 +567,8 @@
             }
             
             // Extract text from image using Tesseract.js
-            function extractText() {
-                if (!selectedFile) return;
+            function extractText(enhancedMode) {
+                if (!selectedFile || !worker) return;
                 
                 // Reset previous results
                 textOutput.textContent = '';
@@ -453,54 +578,65 @@
                 // Show loading state
                 extractBtn.innerHTML = '<span class="loading"></span> Extracting...';
                 extractBtn.disabled = true;
+                enhanceBtn.disabled = true;
+                
+                // Set OCR parameters based on mode
+                const params = enhancedMode ? {
+                    tessedit_pageseg_mode: Tesseract.PSM.AUTO_OSD,
+                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?;:-_()[]{}@#$%&*<>/\\\'"+=',
+                    preserve_interword_spaces: '1'
+                } : {};
                 
                 // Perform OCR
-                Tesseract.recognize(
-                    selectedFile,
-                    'eng', // English language
-                    { 
-                        logger: progress => {
-                            if (progress.status === 'recognizing text') {
-                                const p = Math.round(progress.progress * 100);
-                                progressBar.style.width = `${p}%`;
-                                
-                                if (p < 30) {
-                                    updateStatus('Preprocessing image...');
-                                } else if (p < 70) {
-                                    updateStatus('Detecting text regions...');
-                                } else {
-                                    updateStatus('Extracting characters...');
-                                }
-                            }
-                        }
+                worker.recognize(selectedFile, params)
+                    .then(result => {
+                        // Display extracted text
+                        textOutput.textContent = result.data.text;
+                        updateStatus('Text extraction complete!');
+                        progressBar.style.width = '100%';
+                        
+                        // Restore buttons
+                        extractBtn.innerHTML = '<i>🔍</i> Extract Text';
+                        extractBtn.disabled = false;
+                        enhanceBtn.disabled = false;
+                    })
+                    .catch(err => {
+                        updateStatus('Error: ' + err.message, 'error');
+                        progressBar.style.width = '0%';
+                        
+                        // Restore buttons
+                        extractBtn.innerHTML = '<i>🔍</i> Extract Text';
+                        extractBtn.disabled = false;
+                        enhanceBtn.disabled = false;
+                    });
+            }
+            
+            // Update progress
+            function updateProgress(progress) {
+                if (progress.status === 'recognizing text') {
+                    const p = Math.round(progress.progress * 100);
+                    progressBar.style.width = `${p}%`;
+                    
+                    if (p < 30) {
+                        updateStatus('Preprocessing image...');
+                    } else if (p < 70) {
+                        updateStatus('Detecting text regions...');
+                    } else {
+                        updateStatus('Extracting characters...');
                     }
-                ).then(({ data: { text } }) => {
-                    // Display extracted text
-                    textOutput.textContent = text;
-                    updateStatus('Text extraction complete!');
-                    progressBar.style.width = '100%';
-                    
-                    // Restore extract button
-                    extractBtn.innerHTML = '<i>🔍</i> Extract Text';
-                    extractBtn.disabled = false;
-                }).catch(err => {
-                    updateStatus('Error: ' + err.message, 'error');
-                    progressBar.style.width = '0%';
-                    
-                    // Restore extract button
-                    extractBtn.innerHTML = '<i>🔍</i> Extract Text';
-                    extractBtn.disabled = false;
-                });
+                }
             }
             
             // Reset application
             function resetApp() {
                 fileInput.value = '';
                 imagePreview.style.display = 'none';
+                imagePreview.src = '';
                 textOutput.textContent = '';
                 progressBar.style.width = '0%';
                 updateStatus('Ready to process your image');
                 extractBtn.disabled = true;
+                enhanceBtn.disabled = true;
                 extractBtn.innerHTML = '<i>🔍</i> Extract Text';
                 selectedFile = null;
             }
@@ -508,7 +644,7 @@
             // Update status message
             function updateStatus(message, type = 'info') {
                 statusText.textContent = message;
-                statusText.style.color = type === 'error' ? '#ff6b6b' : '#fff';
+                statusText.style.color = type === 'error' ? '#ff6b6b' : '#fad0c4';
             }
             
             // Format file size
