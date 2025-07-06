@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Text Extractor</title>
+    <title>Enhanced Text Extractor</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <style>
         * {
@@ -342,8 +342,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Advanced Text Extractor</h1>
-            <p class="subtitle">Upload images containing text and extract characters with enhanced accuracy. Images are automatically optimized for OCR processing.</p>
+            <h1>Enhanced Text Extractor</h1>
+            <p class="subtitle">Upload images containing text and extract characters with improved accuracy. Images are automatically optimized for OCR processing.</p>
         </header>
         
         <div class="app-container">
@@ -396,9 +396,6 @@
                     <button class="btn" id="extractBtn" disabled>
                         <i>🔍</i> Extract Text
                     </button>
-                    <button class="btn" id="enhanceBtn" disabled>
-                        <i>✨</i> Enhance & Extract
-                    </button>
                     <button class="btn" id="resetBtn">
                         <i>🔄</i> Reset
                     </button>
@@ -437,7 +434,6 @@
             const dropArea = document.getElementById('dropArea');
             const imagePreview = document.getElementById('imagePreview');
             const extractBtn = document.getElementById('extractBtn');
-            const enhanceBtn = document.getElementById('enhanceBtn');
             const resetBtn = document.getElementById('resetBtn');
             const textOutput = document.getElementById('textOutput');
             const progressBar = document.getElementById('progressBar');
@@ -445,7 +441,6 @@
             
             // State variables
             let selectedFile = null;
-            let worker = null;
             
             // Event Listeners
             browseBtn.addEventListener('click', () => fileInput.click());
@@ -453,19 +448,8 @@
             dropArea.addEventListener('dragover', handleDragOver);
             dropArea.addEventListener('dragleave', handleDragLeave);
             dropArea.addEventListener('drop', handleDrop);
-            extractBtn.addEventListener('click', () => extractText(false));
-            enhanceBtn.addEventListener('click', () => extractText(true));
+            extractBtn.addEventListener('click', extractText);
             resetBtn.addEventListener('click', resetApp);
-            
-            // Initialize Tesseract worker
-            Tesseract.createWorker({
-                logger: progress => updateProgress(progress)
-            }).then(w => {
-                worker = w;
-                worker.load();
-                worker.loadLanguage('eng');
-                worker.initialize('eng');
-            });
             
             // Handle file selection via input
             function handleFileSelect(e) {
@@ -555,9 +539,8 @@
                         imagePreview.src = canvas.toDataURL('image/jpeg', 0.85);
                         imagePreview.style.display = 'block';
                         
-                        // Enable extract buttons
+                        // Enable extract button
                         extractBtn.disabled = false;
-                        enhanceBtn.disabled = false;
                     };
                     
                     img.src = e.target.result;
@@ -567,8 +550,8 @@
             }
             
             // Extract text from image using Tesseract.js
-            function extractText(enhancedMode) {
-                if (!selectedFile || !worker) return;
+            function extractText() {
+                if (!selectedFile) return;
                 
                 // Reset previous results
                 textOutput.textContent = '';
@@ -578,65 +561,64 @@
                 // Show loading state
                 extractBtn.innerHTML = '<span class="loading"></span> Extracting...';
                 extractBtn.disabled = true;
-                enhanceBtn.disabled = true;
                 
-                // Set OCR parameters based on mode
-                const params = enhancedMode ? {
+                // Set OCR parameters for better accuracy
+                const params = {
                     tessedit_pageseg_mode: Tesseract.PSM.AUTO_OSD,
                     tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?;:-_()[]{}@#$%&*<>/\\\'"+=',
                     preserve_interword_spaces: '1'
-                } : {};
+                };
                 
                 // Perform OCR
-                worker.recognize(selectedFile, params)
-                    .then(result => {
-                        // Display extracted text
-                        textOutput.textContent = result.data.text;
-                        updateStatus('Text extraction complete!');
-                        progressBar.style.width = '100%';
-                        
-                        // Restore buttons
-                        extractBtn.innerHTML = '<i>🔍</i> Extract Text';
-                        extractBtn.disabled = false;
-                        enhanceBtn.disabled = false;
-                    })
-                    .catch(err => {
-                        updateStatus('Error: ' + err.message, 'error');
-                        progressBar.style.width = '0%';
-                        
-                        // Restore buttons
-                        extractBtn.innerHTML = '<i>🔍</i> Extract Text';
-                        extractBtn.disabled = false;
-                        enhanceBtn.disabled = false;
-                    });
-            }
-            
-            // Update progress
-            function updateProgress(progress) {
-                if (progress.status === 'recognizing text') {
-                    const p = Math.round(progress.progress * 100);
-                    progressBar.style.width = `${p}%`;
-                    
-                    if (p < 30) {
-                        updateStatus('Preprocessing image...');
-                    } else if (p < 70) {
-                        updateStatus('Detecting text regions...');
-                    } else {
-                        updateStatus('Extracting characters...');
+                Tesseract.recognize(
+                    selectedFile,
+                    'eng', // English language
+                    { 
+                        logger: progress => {
+                            if (progress.status === 'recognizing text') {
+                                const p = Math.round(progress.progress * 100);
+                                progressBar.style.width = `${p}%`;
+                                
+                                if (p < 30) {
+                                    updateStatus('Preprocessing image...');
+                                } else if (p < 70) {
+                                    updateStatus('Detecting text regions...');
+                                } else {
+                                    updateStatus('Extracting characters...');
+                                }
+                            }
+                        },
+                        // OCR configuration for better accuracy
+                        oem: Tesseract.OEM.LSTM_ONLY,
+                        ...params
                     }
-                }
+                ).then(({ data: { text } }) => {
+                    // Display extracted text
+                    textOutput.textContent = text;
+                    updateStatus('Text extraction complete!');
+                    progressBar.style.width = '100%';
+                    
+                    // Restore extract button
+                    extractBtn.innerHTML = '<i>🔍</i> Extract Text';
+                    extractBtn.disabled = false;
+                }).catch(err => {
+                    updateStatus('Error: ' + err.message, 'error');
+                    progressBar.style.width = '0%';
+                    
+                    // Restore extract button
+                    extractBtn.innerHTML = '<i>🔍</i> Extract Text';
+                    extractBtn.disabled = false;
+                });
             }
             
             // Reset application
             function resetApp() {
                 fileInput.value = '';
                 imagePreview.style.display = 'none';
-                imagePreview.src = '';
                 textOutput.textContent = '';
                 progressBar.style.width = '0%';
                 updateStatus('Ready to process your image');
                 extractBtn.disabled = true;
-                enhanceBtn.disabled = true;
                 extractBtn.innerHTML = '<i>🔍</i> Extract Text';
                 selectedFile = null;
             }
@@ -658,4 +640,4 @@
         });
     </script>
 </body>
-</html>
+                        </html>
